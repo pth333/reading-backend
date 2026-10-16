@@ -1,0 +1,61 @@
+// Prisma schema — Reading Tracker (ứng dụng 1 người dùng, không có bảng User)
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+
+  // Dự án dùng ESM ("type": "module" trong package.json).
+  // Generator prisma-client chỉ sinh được .ts/.mts/.cts, nên client là .ts ESM
+  // và được Node >= 22.18 chạy trực tiếp nhờ type stripping (không cần build).
+  moduleFormat           = "esm"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
+}
+
+datasource db {
+  provider = "mysql"
+  // url được nạp từ biến môi trường DATABASE_URL trong prisma7.config.ts
+}
+
+/// Trạng thái đọc — khớp ENUM('want','reading','read') của cột `status`.
+/// Thứ tự khai báo giữ nguyên để MySQL sinh ENUM đúng thứ tự.
+enum ShelfStatus {
+  want
+  reading
+  read
+}
+
+/// Một cuốn sách trên giá — bảng `shelf_books`
+model ShelfBook {
+  id Int @id @default(autoincrement())
+
+  /// Open Library work id (ví dụ `OL45804W`). UNIQUE để chặn trùng — API trả 409.
+  workId String @unique @map("work_id") @db.VarChar(32)
+
+  title   String  @db.VarChar(255)
+  authors String? @db.VarChar(500)
+
+  /// Open Library cover id, dùng để dựng URL ảnh bìa.
+  coverId Int? @map("cover_id")
+
+  firstPublishYear Int? @map("first_publish_year") @db.SmallInt
+  totalPages       Int? @map("total_pages")
+
+  status      ShelfStatus @default(want)
+  currentPage Int         @default(0) @map("current_page")
+
+  /// 1..5 sao. Ràng buộc CHECK 1..5 nằm trong migration.sql vì Prisma không
+  /// khai báo được CHECK constraint trong schema.
+  rating Int? @db.TinyInt
+
+  note String? @db.VarChar(500)
+
+  startedAt  DateTime? @map("started_at")
+  finishedAt DateTime? @map("finished_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("shelf_books")
+}

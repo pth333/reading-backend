@@ -1,0 +1,15 @@
+node_modules/
+
+# Env — không commit thông tin kết nối database
+.env
+.env.*
+!.env.example
+
+# Prisma — client sinh tự động bằng `npm run db:generate`
+/prisma/migrations/dev.db*
+/generated/
+
+# Logs & build
+*.log
+dist/
+coverage/

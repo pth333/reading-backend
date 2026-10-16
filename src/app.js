@@ -1,0 +1,54 @@
+import cors from "cors";
+import express from "express";
+
+import routes from "#src/routes/index.js";
+
+const app = express();
+
+const ALLOWED_ORIGINS = new Set([
+  "http://127.0.0.1:8443",
+]);
+
+app.disable("x-powered-by");
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      if (!origin || ALLOWED_ORIGINS.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      const error = new Error(`CORS: origin "${origin}" không được phép`);
+      error.status = 403;
+      callback(error);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use("/api", routes);
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Not Found", path: req.originalUrl });
+});
+
+app.use((err, req, res, next) => {
+  const status = err.status ?? err.statusCode ?? 500;
+
+  if (status >= 500) {
+    console.error(err);
+  }
+
+  res.status(status).json({
+    error: status >= 500 ? "Internal Server Error" : err.message,
+    ...(process.env.NODE_ENV === "production" ? {} : { detail: err.message }),
+  });
+});
+
+export default app;
