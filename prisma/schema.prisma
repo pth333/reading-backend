@@ -30,32 +30,29 @@ enum ShelfStatus {
 model ShelfBook {
   id Int @id @default(autoincrement())
 
-  /// Open Library work id (ví dụ `OL45804W`). UNIQUE để chặn trùng — API trả 409.
-  workId String @unique @map("work_id") @db.VarChar(32)
+  key String @unique @db.VarChar(32)
 
-  title   String  @db.VarChar(255)
-  authors String? @db.VarChar(500)
+  title       String  @db.VarChar(255)
+  author_name String? @db.VarChar(500)
 
-  /// Open Library cover id, dùng để dựng URL ảnh bìa.
-  coverId Int? @map("cover_id")
+  cover_i Int?
 
-  firstPublishYear Int? @map("first_publish_year") @db.SmallInt
-  totalPages       Int? @map("total_pages")
+  first_publish_year Int? @db.SmallInt
+  total_pages        Int?
 
-  status      ShelfStatus @default(want)
-  currentPage Int         @default(0) @map("current_page")
+  status       ShelfStatus @default(want)
+  current_page Int         @default(0)
 
-  /// 1..5 sao. Ràng buộc CHECK 1..5 nằm trong migration.sql vì Prisma không
-  /// khai báo được CHECK constraint trong schema.
+  /// 1..5 sao. CHECK 1..5 nằm trong migration.sql (Prisma không khai báo được CHECK).
   rating Int? @db.TinyInt
 
   note String? @db.VarChar(500)
 
-  startedAt  DateTime? @map("started_at")
-  finishedAt DateTime? @map("finished_at")
+  started_at  DateTime?
+  finished_at DateTime?
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
 
   @@map("shelf_books")
 }

@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import * as BookControler from "#src/controllers/books.controller.js";
+import * as BookControler from "#src/controllers/books.controller.ts";
 
 const router = Router();
 

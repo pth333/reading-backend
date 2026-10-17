@@ -1,14 +1,16 @@
-import app from "#src/app.js";
+import type { IncomingMessage, Server } from "node:http";
+
+import app from "#src/app.ts";
 
 const PORT = Number(process.env.PORT ?? 8080);
 
 const HOST = process.env.HOST ?? "::";
 
-const server = app.listen(PORT, HOST, () => {
+const server: Server<typeof IncomingMessage> = app.listen(PORT, HOST, () => {
   console.log(`Server đang chạy tại http://localhost:${PORT}`);
 });
 
-server.on("error", (error) => {
+server.on("error", (error: NodeJS.ErrnoException) => {
   if (error.code === "EADDRINUSE") {
     console.error(`Cổng ${PORT} đang bị tiến trình khác chiếm.`);
     process.exit(1);
@@ -17,7 +19,7 @@ server.on("error", (error) => {
   throw error;
 });
 
-for (const signal of ["SIGINT", "SIGTERM"]) {
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
   process.on(signal, () => {
     console.log(`\nNhận ${signal}, đang tắt server...`);
     server.close(() => process.exit(0));
