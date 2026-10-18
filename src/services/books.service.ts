@@ -13,7 +13,7 @@ function mapToBookPayload(
     params.started_at = now;
   }
 
-  if (params.finished_at === ShelfStatus.read) {
+  if (params.status === ShelfStatus.read) {
     params.finished_at = now;
   }
 

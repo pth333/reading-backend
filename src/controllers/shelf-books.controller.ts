@@ -70,7 +70,5 @@ export async function checkExistBook(
 
   const response = await checkExistBookService(data.key);
 
-  console.log(response)
-
   res.status(200).json(response);
 }
