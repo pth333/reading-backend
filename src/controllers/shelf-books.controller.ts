@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 
 import type {
+  CheckExistBookDTO,
   DeleteBookDTO,
   ListBooksDTO,
   UpdateShelfBookDTO,
@@ -9,6 +10,7 @@ import {
   updateShelfBookService,
   listBooksService,
   deleteShelfBookService,
+  checkExistBookService,
 } from "#src/services/shelf-books.service.ts";
 import { ShelfStatus } from "#generated/prisma/client.ts";
 
@@ -34,19 +36,8 @@ export async function updateShelfBook(
     current_page: req.body.current_page,
     rating: req.body.rating,
     note: req.body.note,
+    description: req.body.description,
   };
-
-  if (
-    data.current_page &&
-    data.current_page < 0 &&
-    data.current_page > req.body.total_page
-  ) {
-    throw new Error(
-      "Số trang đang đọc phải lớn hơn 0 hoặc nhỏ hơn tổng số trang",
-    );
-  } else if (data.current_page === req.body.total_page) {
-    data.status = ShelfStatus.read;
-  }
 
   const response = await updateShelfBookService(data);
 
@@ -67,4 +58,19 @@ export async function deleteBook(req: Request, res: Response): Promise<void> {
     message: "Xóa sách thành công",
     book: response,
   });
+}
+
+export async function checkExistBook(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const data: CheckExistBookDTO = {
+    key: req.body.key,
+  };
+
+  const response = await checkExistBookService(data.key);
+
+  console.log(response)
+
+  res.status(200).json(response);
 }

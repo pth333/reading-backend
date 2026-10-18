@@ -1,4 +1,4 @@
-import { Prisma } from "#generated/prisma/client.ts";
+import { Prisma, ShelfStatus } from "#generated/prisma/client.ts";
 import type { ShelfBook } from "#generated/prisma/client.ts";
 import { conflict } from "#src/lib/http-error.ts";
 import { prisma } from "#src/lib/prisma.ts";
@@ -7,6 +7,16 @@ import type { AddShelfBookPayload } from "#src/dtos/books.dto.ts";
 function mapToBookPayload(
   params: AddShelfBookPayload,
 ): Prisma.ShelfBookCreateInput {
+  const now = new Date();
+
+  if (!params.started_at && params.status === ShelfStatus.reading) {
+    params.started_at = now;
+  }
+
+  if (params.finished_at === ShelfStatus.read) {
+    params.finished_at = now;
+  }
+
   return {
     key: params.key,
     title: params.title,
@@ -17,6 +27,9 @@ function mapToBookPayload(
     first_publish_year: params.first_publish_year ?? null,
     total_pages: params.number_of_pages_median ?? null,
     status: params.status,
+    description: params.description,
+    started_at: params.started_at,
+    finished_at: params.finished_at,
   };
 }
 
@@ -32,7 +45,7 @@ export async function addBookShelfService(
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2002"
     ) {
-      throw conflict(`Sách "${payload.key}" đã có trong tủ`);
+      throw conflict(`Sách đã có trong tủ`);
     }
 
     throw error;

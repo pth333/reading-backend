@@ -32,7 +32,7 @@ export type CacheEntry = { value: OpenLibrarySearchResponse; expiresAt: number }
 
 export type SearchDTO = {
   title: string | undefined;
-  author: string | undefined;
+  author_name: string | undefined;
   page: number;
   limit: number;
 };

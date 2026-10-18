@@ -17,9 +17,11 @@ export type AddShelfBookPayload = {
   first_publish_year?: number;
   number_of_pages_median?: number;
   status?: ShelfStatus;
+  description?: string;
+  started_at?: Date | string;
+  finished_at?: Date | string;
 };
 
 export type GetBookDetailDTO = {
   key: string;
 };
-

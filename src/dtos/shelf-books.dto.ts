@@ -16,10 +16,17 @@ export type UpdateShelfBookDTO = {
   current_page?: number;
   rating?: number | undefined;
   note?: string | null;
+  description?: string | null;
+  started_at?: Date | string;
+  finished_at?: Date | string;
 };
 
 export type DeleteBookDTO = {
   id: number;
+};
+
+export type CheckExistBookDTO = {
+  key: string;
 };
 
 export type ListBooksResult = {
@@ -30,4 +37,3 @@ export type ListBooksResult = {
     read: number;
   };
 };
-  

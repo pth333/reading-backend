@@ -7,5 +7,6 @@ const router = Router();
 router.get("/list", ShelfBookControler.listBooks);
 router.post("/update", ShelfBookControler.updateShelfBook);
 router.delete("/delete", ShelfBookControler.deleteBook);
+router.post("/check-exist-book", ShelfBookControler.checkExistBook);
 
 export default router;

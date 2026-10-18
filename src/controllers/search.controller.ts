@@ -6,7 +6,7 @@ import { searchBooks } from "#src/services/openlibrary.service.ts";
 export async function search(req: Request, res: Response): Promise<void> {
   const params: SearchDTO = {
     title: req.query.title as string | undefined,
-    author: req.query.author as string | undefined,
+    author_name: req.query.author_name as string | undefined,
     page: Number(req.query.page) || 1,
     limit: Number(req.query.limit) || 10,
   };

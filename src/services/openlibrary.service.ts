@@ -87,7 +87,7 @@ export async function searchBooks({
   });
 
   if (params.title) searchParams.set("title", params.title);
-  if (params.author) searchParams.set("author", params.author);
+  if (params.author_name) searchParams.set("author", params.author_name);
   FIELDS.forEach((f) => searchParams.append("fields", f));
 
   const url = `${BASE_URL}/search.json?${searchParams}`;

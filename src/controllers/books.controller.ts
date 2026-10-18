@@ -17,6 +17,7 @@ export async function addShelfBook(req: Request, res: Response): Promise<void> {
     first_publish_year: req.body.first_publish_year,
     number_of_pages_median: req.body.number_of_pages_median,
     status: req.body.status,
+    description: req.body.description
   };
 
   const response = await addBookShelfService(data);

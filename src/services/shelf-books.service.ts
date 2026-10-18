@@ -5,8 +5,9 @@ import type {
   ListBooksResult,
   UpdateShelfBookDTO,
 } from "#src/dtos/shelf-books.dto.ts";
-import { notFound } from "#src/lib/http-error.ts";
+import { badRequest, notFound } from "#src/lib/http-error.ts";
 import { prisma } from "#src/lib/prisma.ts";
+import path from "node:path";
 
 export async function listBooksService(
   data: ListBooksDTO,
@@ -49,19 +50,78 @@ export async function listBooksService(
 export async function updateShelfBookService(
   data: UpdateShelfBookDTO,
 ): Promise<ShelfBook> {
-  try {
-    const { id, ...rest } = data;
+  const { id, ...patch } = data;
+  const now = new Date();
 
+  const current = await prisma.shelfBook.findUnique({ where: { id } });
+
+  if (!current) {
+    throw notFound(`Không tìm thấy sách với id ${id}`);
+  }
+
+  if (patch.current_page !== undefined) {
+    if (patch.current_page < 0) {
+      throw badRequest("Số trang đang đọc phải lớn hơn hoặc bằng 0");
+    }
+
+    const totalPages = current.total_pages;
+
+    if (totalPages !== null) {
+      if (patch.current_page > totalPages) {
+        throw badRequest(
+          `Số trang đang đọc (${patch.current_page}) vượt quá tổng số trang (${totalPages})`,
+        );
+      }
+
+      if (patch.status === ShelfStatus.read) {
+        patch.current_page = totalPages;
+      }
+
+      if (patch.current_page === totalPages) {
+        patch.finished_at = now;
+      }
+
+      if (patch.current_page > 0 && patch.current_page < totalPages) {
+        patch.status = "reading";
+      }
+    }
+  }
+
+  if (!patch.started_at && patch.status === ShelfStatus.reading) {
+    patch.started_at = now;
+  }
+
+  try {
     return await prisma.shelfBook.update({
       where: { id },
-      data: rest,
+      data: patch,
     });
   } catch (error) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&
       error.code === "P2025"
     ) {
-      throw notFound(`Không tìm thấy sách với id ${data.id}`);
+      throw notFound(`Không tìm thấy sách với id ${id}`);
+    }
+
+    throw error;
+  }
+}
+
+export async function checkExistBookService(
+  key: string,
+): Promise<ShelfBook | null> {
+  if (!key) {
+    return null;
+  }
+
+  try {
+    return await prisma.shelfBook.findUnique({
+      where: { key },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      throw new Error(`Không kết nối được database: ${error.message}`);
     }
 
     throw error;

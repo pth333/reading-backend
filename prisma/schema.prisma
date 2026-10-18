@@ -46,7 +46,8 @@ model ShelfBook {
   /// 1..5 sao. CHECK 1..5 nằm trong migration.sql (Prisma không khai báo được CHECK).
   rating Int? @db.TinyInt
 
-  note String? @db.VarChar(500)
+  note        String? @db.VarChar(500)
+  description String? @db.Text
 
   started_at  DateTime?
   finished_at DateTime?

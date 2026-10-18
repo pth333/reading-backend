@@ -6,24 +6,11 @@ import routes from "#src/routes/index.ts";
 
 const app = express();
 
-const ALLOWED_ORIGINS = new Set(["http://127.0.0.1:8443"]);
-
 app.disable("x-powered-by");
 
 app.use(
   cors({
-    origin(origin, callback) {
-      if (!origin || ALLOWED_ORIGINS.has(origin)) {
-        callback(null, true);
-        return;
-      }
-
-      const error: Error & { status?: number } = new Error(
-        `CORS: origin "${origin}" không được phép`,
-      );
-      error.status = 403;
-      callback(error);
-    },
+    origin: "http://localhost:8443",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
