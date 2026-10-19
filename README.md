@@ -7,10 +7,8 @@ REST API quản lý tủ sách cá nhân: tìm sách qua **Open Library**, lưu 
 | | URL |
 | --- | --- |
 | Frontend (Netlify) | https://reading-traker.netlify.app |
-| Backend | `https://<backend-url-cua-ban>` <!-- TODO: điền URL deploy --> |
+| Backend |  https://reading-api.duckdns.org/api
 
-> Ảnh chụp màn hình: <!-- thêm `docs/screenshot.png` hoặc `docs/demo.gif` rồi mở comment dòng dưới -->
-> `![Demo](docs/screenshot.png)` — hoặc xem trực tiếp qua link Frontend ở trên.
 
 ## Công nghệ
 
@@ -129,9 +127,7 @@ Các bước:
 ## Giả định, hạn chế & hướng cải thiện
 
 **Giả định**
-- Ứng dụng 1 người dùng → không auth/ownership; ai gọi được API là đọc/ghi được toàn bộ tủ sách.
 - Mỗi sách định danh bằng `key` của Open Library (`/works/...`) → không thêm được sách không có trên Open Library.
-- `number_of_pages_median` của Open Library dùng làm `total_pages` (có thể lệch với bản in thực tế).
 
 **Hạn chế**
 - Không có test (unit/integration) và không có validation schema (Zod/Joi) — dữ liệu sai kiểu chỉ phát hiện ở tầng DB.
@@ -142,7 +138,4 @@ Các bước:
 **Nếu có thêm thời gian**
 1. Thêm `zod` validate request + `swagger-ui` (OpenAPI) tự sinh từ DTO.
 2. Viết test (`vitest` + `supertest`) cho service/migration; CI GitHub Actions chạy `typecheck` + test.
-3. Auth nhẹ (JWT/session) + bảng `User` để dùng nhiều người; đưa CORS origin vào env.
-4. Cache Redis cho Open Library, rate limit theo IP, thêm `/health` + `/metrics`.
-5. `docker compose` production thật: non-root DB user, secret manager, backup volume, log shipping.
-6. Đồng bộ lại 2 file migration với `schema.prisma` (hiện `author_name`/`description` chưa có trong migration — cần `npm run db:migrate` để sinh migration còn thiếu).
+3. Cache Redis cho Open Library, rate limit theo IP, thêm `/health` + `/metrics`.

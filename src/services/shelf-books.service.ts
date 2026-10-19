@@ -73,11 +73,12 @@ export async function updateShelfBookService(
         );
       }
 
-      if (patch.status === ShelfStatus.read) {
-        patch.current_page = totalPages;
-      }
+      const isFinished =
+        patch.status === ShelfStatus.read || patch.current_page === totalPages;
 
-      if (patch.current_page === totalPages) {
+      if (isFinished) {
+        patch.status = ShelfStatus.read;
+        patch.current_page = totalPages;
         patch.finished_at = now;
       }
 
