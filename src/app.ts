@@ -10,7 +10,7 @@ app.disable("x-powered-by");
 
 app.use(
   cors({
-    origin: "http://localhost:8443",
+    origin: "http://localhost:8443,https://reading-traker.netlify.app",
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
