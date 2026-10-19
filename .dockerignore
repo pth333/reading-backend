@@ -1,0 +1,25 @@
+# Build context chỉ cần source + manifest.
+node_modules
+generated
+dist
+coverage
+
+# Không bao giờ đưa secret vào image — env được cấp lúc runtime qua compose.
+.env
+.env.*
+!.env.example
+
+# Git & tooling
+.git
+.gitignore
+.vscode
+.idea
+*.log
+npm-debug.log*
+
+# Tài liệu & file của orchestrator (build không dùng tới)
+README.md
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.*.yml

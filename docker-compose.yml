@@ -1,21 +1,85 @@
+# Docker Compose cho Reading Tracker Backend
+#
+#   docker compose up -d --build     # build image + chạy DB, migrate, api
+#   docker compose logs -f api
+#   docker compose down              # dừng (giữ dữ liệu DB)
+#   docker compose down -v           # dừng + xoá volume dữ liệu
+#
+# Biến có thể override từ file .env ở cùng thư mục (compose tự đọc .env):
+#   DB_NAME=reading_tracker
+#   DB_USER=root
+#   DB_PASSWORD=1111
+#   API_PORT=8080
+#   DB_PORT=3308
+
 services:
   mariadb:
     image: "mariadb:10.4"
     container_name: "mariadb"
     restart: always
     ports:
-      - "3308:3306"
+      - "${DB_PORT:-3308}:3306"
     environment:
-      - MYSQL_DATABASE=reading_tracker
-      - MYSQL_ROOT_PASSWORD=1111
+      - MYSQL_DATABASE=${DB_NAME:-reading_tracker}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-1111}
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
       - --default-time-zone=+07:00
-
     volumes:
       - mariadb_data:/var/lib/mysql
+    healthcheck:
+      # migrate/api chỉ được chạy khi DB thực sự sẵn sàng nhận kết nối.
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "127.0.0.1",
+          "-uroot",
+          "-p${DB_PASSWORD:-1111}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
+  # ---------------------------------------------------------------------------
+  # Migration (one-shot): chạy `prisma migrate deploy` rồi thoát.
+  # Dùng stage `migrate` vì cần Prisma CLI (devDependency).
+  # ---------------------------------------------------------------------------
+  migrate:
+    build:
+      context: .
+      target: migrate
+    image: reading-tracker-backend:migrate
+    environment:
+      - DATABASE_URL=mysql://${DB_USER:-root}:${DB_PASSWORD:-1111}@mariadb:3306/${DB_NAME:-reading_tracker}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      target: runtime
+    image: reading-tracker-backend:latest
+    container_name: "reading-backend"
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      - NODE_ENV=production
+      - PORT=8080
+      - HOST=0.0.0.0
+      - DATABASE_URL=mysql://${DB_USER:-root}:${DB_PASSWORD:-1111}@mariadb:3306/${DB_NAME:-reading_tracker}
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
 volumes:
   mariadb_data:
