@@ -2,6 +2,13 @@
 
 REST API quản lý tủ sách cá nhân: tìm sách qua **Open Library**, lưu vào tủ, cập nhật tiến độ đọc, đánh giá, ghi chú. Ứng dụng 1 người dùng — không auth, không bảng `User`.
 
+Trang search
+![alt text](image.png)
+Chi tiết sách 
+![alt text](image-1.png)
+Tang tủ sách 
+![alt text](image-2.png)
+
 ## Link demo
 
 | | URL |
